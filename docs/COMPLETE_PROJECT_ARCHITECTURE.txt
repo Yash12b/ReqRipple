@@ -1,0 +1,1937 @@
+REQRIPPLE
+SOFTWARE REQUIREMENT CHANGE IMPACT ANALYSER
+Complete Project Architecture and Implementation Blueprint
+
+Document purpose
+This document defines the product vision, problem statement, scope, architecture, workflows, data model, impact-analysis logic, interfaces, implementation plan, testing strategy and development-agent guidance for the SEPM project.
+
+Project level: Student project, medium-to-high difficulty
+Recommended implementation style: Modular monolithic full-stack web application
+Primary goal: A working, explainable requirements change-management product — not a static dashboard or an AI-chatbot wrapper.
+
+===============================================================================
+1. PROJECT IDENTITY AND VISION
+===============================================================================
+
+Product name: ReqRipple
+Full title: Software Requirement Change Impact Analyser
+Tagline: Understand the consequences of every software requirement change.
+
+Product vision:
+ReqRipple helps software teams understand what may be affected when a requirement changes. It maintains traceability between requirements and downstream engineering artifacts, analyses change propagation, explains why artifacts are affected, prioritises review work, and tracks whether the resulting updates and tests have been completed.
+
+The word "ripple" represents the chain reaction caused by a seemingly small requirement change. A change to one requirement may affect acceptance criteria, design elements, software modules, API contracts, database entities, user-interface flows, test cases and documentation.
+
+Product category:
+Requirements engineering, requirements traceability, change management and software project quality assurance.
+
+Primary users:
+- Project Manager: oversees the project and approves or defers changes.
+- Business Analyst / Requirements Analyst: creates requirements, evaluates change requests and maintains traceability.
+- Developer / Technical Lead: reviews affected implementation artifacts and carries out updates.
+- Tester / QA Engineer: reviews affected test cases and verifies changed behaviour.
+- Stakeholder / Client Representative: submits requests and reviews decisions where permitted.
+- Viewer: reads project status and reports without editing project data.
+
+===============================================================================
+2. PROBLEM STATEMENT
+===============================================================================
+
+In software development, requirements frequently evolve because of changing customer expectations, business decisions, regulatory conditions, feedback and technical constraints. Requirements are connected to many other parts of a software product, including user stories, acceptance criteria, design components, modules, APIs, database structures, user-interface screens, test cases and documentation.
+
+When a requirement changes, teams often struggle to identify every directly and indirectly affected artifact. The relationships may be scattered across spreadsheets, documents, issue trackers, diagrams, messages and individual team members' knowledge. A small change may therefore be implemented in one place but missed in another.
+
+This can result in inconsistent implementations, incomplete testing, outdated documentation, rework, defects, unexpected cost and schedule changes, and poor accountability for change decisions.
+
+ReqRipple addresses this problem through a centralized, traceability-driven change-impact workflow. It stores project requirements and related artifacts, maps their dependencies, compares proposed and approved requirement versions, traverses the dependency graph, identifies affected items, explains the propagation paths, prioritises the items for human review and tracks their resolution.
+
+Important boundary:
+ReqRipple is a decision-support system. It does not claim to understand an entire source-code repository automatically or guarantee that every possible impact has been discovered. The quality of its analysis depends on the completeness and correctness of the traceability relationships entered and maintained by the project team. The product must make missing or uncertain traceability visible rather than hiding it.
+
+===============================================================================
+3. PRODUCT OBJECTIVES
+===============================================================================
+
+O1. Maintain a structured, versioned repository of software requirements.
+O2. Maintain a traceability graph connecting requirements to engineering artifacts.
+O3. Record change requests with their reason, requester, urgency and proposed change.
+O4. Compare the existing requirement version with the proposed version.
+O5. Identify direct and indirect impacted artifacts through graph traversal.
+O6. Explain every impact using readable dependency paths.
+O7. Prioritise impacted artifacts using a transparent, configurable scoring model.
+O8. Allow reviewers to approve, reject or defer proposed changes.
+O9. Track decisions and remediation work for affected artifacts.
+O10. Identify affected artifacts that have not been reviewed, updated or retested.
+O11. Provide dashboards and reports for traceability health, change history and unresolved change work.
+O12. Maintain an audit trail of important project actions.
+
+Success is measured by working end-to-end workflows, correctness of graph traversal, explainability of impact results, reliable version history, usable reports and meaningful automated tests — not by the number of screens.
+
+===============================================================================
+4. WHAT MAKES REQRIPPLE DISTINCTIVE
+===============================================================================
+
+The project must go beyond a basic requirements list or a dependency graph. Its distinctive value comes from combining the following capabilities.
+
+4.1 Explainable impact paths
+For every affected artifact, show the path from the changed requirement to that artifact.
+Example:
+REQ-03 Event Registration
+  -> MOD-02 Registration Service [implemented_by]
+  -> API-04 Register for Event [exposes]
+  -> UI-07 Event Registration Screen [consumed_by]
+  -> TEST-12 Registration API Integration Test [verified_by]
+
+The user can inspect why an artifact was included rather than receiving an unexplained impact label.
+
+4.2 Change Simulation / What-if Preview
+Before approval, the user can analyse a proposed change without modifying the approved requirement baseline. The system creates a preview containing affected artifacts, impact priorities, affected owners, missing test coverage and estimated remediation effort. The preview is a simulation; it must not create permanent approved versions or remediation tasks until the change is approved.
+
+4.3 Change Debt Dashboard
+Change debt represents unresolved work created by approved changes. For example, if an approved change affects a high-criticality API and nobody has reviewed or updated it, that unresolved work remains visible. The dashboard highlights unacknowledged artifacts, overdue remediation, pending retests and accepted risks.
+
+4.4 Traceability Health Monitor
+The product identifies requirements with no implementation links, implemented artifacts with no verification links, orphan artifacts, broken links, requirements with incomplete coverage and critical components that have no mapped tests.
+
+4.5 Evidence-backed decisions
+A reviewer can see the changed fields, the dependency path, the reason for each impact score, the assigned owner, the disposition and the evidence supplied when marking an artifact as unaffected or updated.
+
+4.6 Requirement volatility history
+Show which requirements have changed repeatedly, how often they change, and which project areas receive repeated change requests. This helps teams recognise unstable requirements and areas at risk of rework.
+
+4.7 Human-controlled analysis
+The engine recommends impacted artifacts and priorities. Humans make final decisions. Users can mark a suggested impact as not applicable, but must provide a reason. The application must never silently remove an impact because a model or heuristic is uncertain.
+
+4.8 No mandatory paid AI service
+The core project works with deterministic rules and graph algorithms. Optional AI-assisted wording suggestions may be added later, but the project must remain fully functional without an API key or paid language model.
+
+===============================================================================
+5. SCOPE AND BOUNDARIES
+===============================================================================
+
+5.1 Core scope (must be completed)
+- User sign-in and basic role-based access.
+- Create and manage projects/workspaces.
+- Create, edit and version requirements.
+- Create and manage engineering artifacts.
+- Create directed traceability relationships.
+- Visualise the traceability graph.
+- Submit and manage change requests.
+- Compare current and proposed requirement versions.
+- Run deterministic graph-based impact analysis.
+- Produce explainable paths and an impact-priority score.
+- Review, approve, reject or defer change requests.
+- Create remediation actions for approved changes.
+- Track artifact dispositions, updates and retests.
+- Display change debt and traceability health.
+- Export an impact report.
+- Maintain an audit trail.
+
+5.2 Stretch scope (only after core scope is stable)
+- Import/export requirements using CSV or a simple structured JSON format.
+- Import a basic ReqIF-compatible subset if time permits; do not promise full ReqIF support.
+- Compare two project baselines.
+- Optional AI-generated plain-language summaries with human approval.
+- Git commit or issue-tracker links stored as external references (not full integration initially).
+- Configurable impact weights per project.
+- Project templates and multiple sample datasets.
+
+5.3 Explicitly out of scope for the first release
+- Automatic discovery of every dependency from arbitrary source code.
+- Full Jira, Azure DevOps, GitHub or GitLab integration.
+- Real-time multi-user collaborative editing with conflict resolution.
+- Microservices architecture.
+- A custom-trained machine-learning model.
+- Automatic code modification or automatic approval of changes.
+- Enterprise SSO, billing, multi-tenant cloud deployment and production compliance certification.
+- Guaranteed prediction of exact cost, delivery date or defect probability.
+
+===============================================================================
+6. CORE DOMAIN CONCEPTS
+===============================================================================
+
+6.1 Requirement
+A statement of a need or capability that the software must satisfy. Each requirement has a stable identifier, title, description, type, priority, criticality, status, owner and version history.
+
+Suggested requirement types:
+- Functional
+- Non-functional
+- Business
+- Security
+- Performance
+- Usability
+- Regulatory / Compliance
+
+6.2 Requirement version
+An immutable snapshot of a requirement at a point in time. It stores the version number and the contents that were approved. Do not overwrite an approved version. A new approved change creates a new version.
+
+6.3 Engineering artifact
+Any project item that may be affected by a requirement change.
+
+Supported artifact types:
+- User Story
+- Acceptance Criterion
+- Design Component
+- Software Module / Service
+- API Endpoint / Contract
+- Database Entity / Schema
+- UI Screen / User Flow
+- Test Case
+- Documentation Item
+- Deployment / Configuration Item
+- Project Task (optional in core release)
+
+Every artifact should have: ID, title, type, description, criticality, owner, status, estimated effort, last-reviewed date and optional external reference.
+
+6.4 Traceability edge
+A directed relationship between two nodes in the project traceability graph. The edge records the relationship type, whether impact propagation is enabled, the relationship strength, its confirmation status and optional notes.
+
+Important direction convention:
+The edge is directed in the direction that impact is expected to propagate. If changing source node A may require review of target node B, store A -> B.
+
+Examples:
+- Requirement -> Module (implemented_by)
+- Requirement -> Acceptance Criterion (specified_by)
+- Requirement -> Test Case (verified_by)
+- Module -> API (exposes)
+- API -> UI Screen (consumed_by)
+- Database Entity -> API (used_by)
+- Component -> Documentation (documented_by)
+
+A graph may contain cycles. The analysis engine must detect/avoid infinite traversal.
+
+6.5 Change request
+A proposed modification to an existing requirement. It stores the requester, reason, urgency, proposed content, affected requirement, status, submission date and decision history.
+
+6.6 Impact analysis
+A saved, reproducible snapshot of the graph and requirement version used for an analysis. It stores the analysis timestamp, algorithm version, result summary and individual impact results.
+
+6.7 Impact result
+A result for one potentially affected artifact. It stores shortest path distance, selected explanation path(s), score components, final score, priority band, evidence and review status.
+
+6.8 Remediation action
+A task created after a change is approved. It records what an owner must inspect, update, document or retest, along with due date and completion evidence.
+
+6.9 Baseline
+A named snapshot of the approved requirements and traceability state at a particular milestone. Baselines make it possible to compare project states over time.
+
+===============================================================================
+7. USERS, ROLES AND PERMISSIONS
+===============================================================================
+
+ADMIN / PROJECT OWNER
+- Create and configure projects.
+- Invite or register members.
+- Assign project roles.
+- Manage project settings and scoring weights.
+- View all project records and audit history.
+
+REQUIREMENTS ANALYST
+- Create and edit draft requirements.
+- Submit proposed changes.
+- Maintain traceability links.
+- Run impact analysis.
+- Prepare impact reports.
+
+DEVELOPER / TECHNICAL OWNER
+- View affected technical artifacts.
+- Review and accept remediation actions.
+- Update artifact status and add implementation notes.
+- Attach evidence or external references.
+
+TESTER / QA
+- Review affected test cases.
+- Record retest outcomes.
+- Mark test evidence and verification status.
+
+APPROVER / PROJECT MANAGER
+- Review impact reports.
+- Approve, reject or defer change requests.
+- Record decision rationale.
+- Accept a documented residual risk where permitted.
+
+VIEWER / STAKEHOLDER
+- Read permitted project requirements, change status and reports.
+- Submit change requests if the project owner grants that permission.
+
+Permission checks must be performed by the backend, not only by hiding frontend buttons.
+
+===============================================================================
+8. END-TO-END BUSINESS WORKFLOW
+===============================================================================
+
+WORKFLOW A — PROJECT SETUP
+1. User creates a project and enters its name, description and domain.
+2. User adds team members and assigns roles.
+3. User creates requirements with unique IDs.
+4. User creates engineering artifacts.
+5. User establishes directed traceability relationships.
+6. System calculates initial traceability-health indicators.
+7. User optionally saves a baseline.
+
+WORKFLOW B — CHANGE REQUEST SUBMISSION
+1. A stakeholder or analyst selects an existing requirement.
+2. User enters the proposed title/description/acceptance criteria or other changeable fields.
+3. User records the reason for change, business justification, urgency and requested date if applicable.
+4. System compares the current approved version with the proposed content.
+5. System stores the proposal as a change request. The approved requirement remains unchanged.
+6. Change request moves to SUBMITTED.
+
+WORKFLOW C — IMPACT ANALYSIS
+1. Analyst opens a submitted change request.
+2. System loads the approved requirement version and proposed version.
+3. Diff engine identifies changed fields and produces a readable comparison.
+4. Impact engine starts traversal from the changed requirement node.
+5. Engine follows only active, propagation-enabled traceability edges.
+6. Engine records affected nodes, shortest path distances and explanation paths.
+7. Engine checks artifact criticality, relationship strength and verification coverage.
+8. Engine calculates an impact-priority score and priority band.
+9. Engine identifies missing or weak traceability as an analysis limitation.
+10. System stores the analysis snapshot and displays the report.
+
+WORKFLOW D — REVIEW AND DECISION
+1. Approver examines the proposed change and its impact report.
+2. Approver can inspect each affected artifact and the path explaining its inclusion.
+3. Reviewer may add comments, request more analysis, approve, reject or defer.
+4. If rejecting or deferring, rationale is mandatory.
+5. If approving, the system creates a new immutable approved requirement version.
+6. The old approved version remains accessible in version history.
+7. System creates remediation actions for affected artifacts requiring updates or retests.
+
+WORKFLOW E — REMEDIATION AND VERIFICATION
+1. Each impacted artifact is assigned a disposition:
+   - UPDATE_REQUIRED
+   - RETEST_REQUIRED
+   - REVIEW_NO_CHANGE
+   - NOT_APPLICABLE
+   - RISK_ACCEPTED
+2. NOT_APPLICABLE and RISK_ACCEPTED require a written rationale and reviewer identity.
+3. Owners update the artifact or record why no update is necessary.
+4. Tester records test outcome: NOT_RUN, PASSED, FAILED or BLOCKED.
+5. Failed or blocked tests remain visible and prevent normal closure where they are mandatory.
+6. System recalculates unresolved change debt.
+7. Change request can close only when closure conditions are satisfied or an authorised residual-risk decision is recorded.
+
+WORKFLOW F — REPORTING
+1. User opens project dashboard.
+2. Dashboard presents open change requests, high-priority impacts, overdue actions, test gaps and traceability-health indicators.
+3. User filters by requirement, module, owner, priority, status or date.
+4. User exports an impact report or change history.
+
+===============================================================================
+9. FUNCTIONAL REQUIREMENTS OF REQRIPPLE
+===============================================================================
+
+FR-01 Authentication: users can sign in and sign out securely.
+FR-02 Project creation: authorised users can create and configure projects.
+FR-03 Membership: project owners can assign project-specific roles.
+FR-04 Requirement management: analysts can create, edit, view and retire requirements.
+FR-05 Requirement IDs: every requirement receives a unique project-scoped identifier.
+FR-06 Version history: approved requirement versions are immutable and viewable.
+FR-07 Artifact management: authorised users can create, edit and archive engineering artifacts.
+FR-08 Traceability: users can create, edit and deactivate directed relationships.
+FR-09 Graph visualisation: users can view and filter the project's traceability graph.
+FR-10 Change submission: authorised users can submit a proposed requirement change.
+FR-11 Version comparison: system displays field-level differences between current and proposed content.
+FR-12 Impact analysis: system finds directly and indirectly reachable artifacts.
+FR-13 Explainability: system displays paths and edge labels explaining each impact.
+FR-14 Prioritisation: system computes and displays a transparent impact-priority score.
+FR-15 Simulation: user can preview impact without modifying approved project data.
+FR-16 Review workflow: approver can approve, reject or defer a change request.
+FR-17 Remediation: approved changes can create owner-assigned remediation actions.
+FR-18 Disposition: every impact result can be reviewed and given a disposition.
+FR-19 Verification: testers can record test execution status and evidence.
+FR-20 Traceability health: system detects orphan nodes, missing implementation links and missing test coverage.
+FR-21 Change debt: dashboard highlights unresolved approved-change work.
+FR-22 Volatility: system shows requirement change frequency and history.
+FR-23 Reports: users can view and export change-impact reports.
+FR-24 Audit: system records important create/update/approve/reject actions.
+FR-25 Notifications: application displays in-app notifications for assignments, approvals and overdue work.
+FR-26 Search/filter: users can search requirements, artifacts and change requests.
+
+===============================================================================
+10. NON-FUNCTIONAL REQUIREMENTS
+===============================================================================
+
+NFR-01 Usability: common tasks should be understandable without technical training beyond basic software project knowledge.
+NFR-02 Explainability: every impact result must show why the artifact was identified and how its score was calculated.
+NFR-03 Performance: for a student demonstration project containing up to approximately 1,000 graph nodes and 5,000 edges, typical impact analysis should complete within a few seconds on a normal development laptop. This is a target to validate, not a guaranteed benchmark.
+NFR-04 Reliability: failed analysis must not corrupt a requirement, change request or baseline.
+NFR-05 Security: passwords must be hashed; API endpoints must enforce authentication and project-level authorisation.
+NFR-06 Data integrity: foreign keys and validation rules must prevent invalid project relationships.
+NFR-07 Auditability: important changes and approval decisions must be attributable to a user and timestamp.
+NFR-08 Maintainability: frontend, API, domain logic and persistence must be separated into understandable modules.
+NFR-09 Testability: core impact logic must be testable without starting the web interface.
+NFR-10 Portability: application should run locally on macOS and common development environments.
+NFR-11 Accessibility: keyboard navigation, readable contrast, labels and understandable status indicators should be provided.
+NFR-12 Data transparency: the product must disclose that impact analysis depends on manually maintained traceability data.
+
+===============================================================================
+11. RECOMMENDED TECHNICAL ARCHITECTURE
+===============================================================================
+
+Use a MODULAR MONOLITH rather than microservices. It is easier to build, run, test and explain within a semester project, while preserving clear internal boundaries.
+
+High-level architecture:
+
++---------------------------------------------------------------+
+|                       USER / WEB BROWSER                      |
++-------------------------------+-------------------------------+
+                                |
+                                v
++---------------------------------------------------------------+
+|                    FRONTEND: REACT + TYPESCRIPT               |
+|                                                               |
+|  Dashboard | Requirements | Traceability Graph | Change Desk  |
+|  Impact Report | Remediation | Reports | Project Settings    |
++-------------------------------+-------------------------------+
+                                |
+                         HTTPS / JSON API
+                                |
+                                v
++---------------------------------------------------------------+
+|                       FASTAPI BACKEND                          |
+|                                                               |
+|  Authentication & Authorisation                               |
+|  Project / Membership Service                                  |
+|  Requirement & Version Service                                |
+|  Artifact & Traceability Service                               |
+|  Change Request & Diff Service                                |
+|  Impact Analysis Engine                                       |
+|  Review / Approval Service                                    |
+|  Remediation & Verification Service                           |
+|  Dashboard / Reporting / Audit Service                        |
++-------------------------------+-------------------------------+
+                                |
+                                v
++---------------------------------------------------------------+
+|                  DOMAIN / APPLICATION LAYER                    |
+|                                                               |
+|  Requirement Rules | Workflow Rules | Graph Traversal         |
+|  Impact Scoring | Traceability Health | Change Debt            |
+|  Report Assembly | Notification Rules                       |
++-------------------------------+-------------------------------+
+                                |
+                                v
++---------------------------------------------------------------+
+|                 SQLALCHEMY DATA ACCESS LAYER                   |
++-------------------------------+-------------------------------+
+                                |
+                                v
++---------------------------------------------------------------+
+|                    SQLITE DATABASE (MVP)                       |
+|                                                               |
+|  Users, Projects, Requirements, Versions, Artifacts, Edges,   |
+|  Change Requests, Analyses, Impact Results, Actions, Audits   |
++---------------------------------------------------------------+
+
+Optional later: move to PostgreSQL if deployment or concurrent use requires it. Do not introduce a graph database in the first version. A relational database plus a dedicated graph-analysis service is sufficient for the expected project scale.
+
+11.1 Frontend
+Recommended:
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query for API/server state
+- React Hook Form and Zod for forms and validation
+- React Flow (@xyflow/react) for traceability graph visualisation
+- Recharts for dashboard charts
+- Lucide icons
+
+11.2 Backend
+Recommended:
+- Python 3.11 or newer compatible version
+- FastAPI
+- Pydantic for request/response validation
+- SQLAlchemy 2.x
+- Alembic for database migrations
+- SQLite for local MVP
+- Pytest for unit and integration tests
+- Passlib or a maintained password-hashing approach using Argon2id/bcrypt
+- JWT or secure session-based authentication; keep token handling simple and secure
+
+11.3 Graph analysis
+Implement the first graph traversal using a clear Python service and adjacency lists. A graph library is optional, not mandatory. Keeping the algorithm in a framework-independent service makes it easy to test and explain during the viva.
+
+11.4 File handling
+For the MVP, store only small evidence attachments or store file metadata with a local uploads directory. Validate file type and size. Never accept arbitrary executable files. File storage must not be required for core operation.
+
+===============================================================================
+12. BACKEND MODULE DESIGN
+===============================================================================
+
+12.1 Authentication module
+Responsibilities:
+- Sign-in and sign-out.
+- Password hashing and verification.
+- Current-user resolution.
+- Project-level role checks.
+- Account activation/deactivation if needed.
+
+12.2 Project module
+Responsibilities:
+- Create/read/update/archive project.
+- Project settings.
+- Membership and role assignment.
+- Project summary statistics.
+
+12.3 Requirement module
+Responsibilities:
+- Create and edit draft requirements.
+- Generate IDs such as REQ-001.
+- Maintain requirement attributes.
+- Manage approved immutable versions.
+- Retrieve full version history.
+- Retire requirements without deleting historical records.
+
+12.4 Artifact module
+Responsibilities:
+- Register implementation and verification artifacts.
+- Maintain type, criticality, owner and status.
+- Search and filter artifacts.
+- Archive obsolete artifacts.
+
+12.5 Traceability module
+Responsibilities:
+- Add, update and deactivate graph edges.
+- Validate that source and target belong to the same project.
+- Validate allowed relation types.
+- Prevent accidental self-links.
+- Detect cycles for warning purposes; cycles are not always invalid, but the impact engine must handle them safely.
+- Produce graph data for the frontend.
+- Calculate traceability-health indicators.
+
+12.6 Change request module
+Responsibilities:
+- Submit proposals.
+- Store old and proposed content references.
+- Track priority, urgency, rationale and requester.
+- Enforce status transitions.
+- Record comments and decisions.
+
+12.7 Requirement diff module
+Responsibilities:
+- Compare current and proposed field values.
+- Produce field-level added/removed/modified records.
+- Classify the kind of change using deterministic rules.
+- Preserve the raw before/after values.
+
+Suggested change categories:
+- WORDING_ONLY
+- ACCEPTANCE_CRITERIA_CHANGE
+- FUNCTIONAL_SCOPE_CHANGE
+- NON_FUNCTIONAL_CONSTRAINT_CHANGE
+- SECURITY_OR_PRIVACY_CHANGE
+- PRIORITY_CHANGE
+- DELETION_OR_RETIREMENT
+- MULTIPLE_FIELDS_CHANGED
+
+Classification is a helper for reviewers. It must not be treated as proof that a change has no downstream effect. Even a wording change may alter meaning.
+
+12.8 Impact analysis module
+Responsibilities:
+- Load the relevant approved requirement version and proposed version.
+- Capture a consistent active graph snapshot.
+- Traverse downstream dependencies.
+- Exclude the seed requirement from the affected-artifact result list unless explicitly shown as the origin.
+- Calculate path distance and relationship strength.
+- Find linked verification artifacts and identify coverage gaps.
+- Calculate impact-priority scores.
+- Create human-readable explanations.
+- Save the analysis snapshot and results.
+
+12.9 Review and approval module
+Responsibilities:
+- Display impact analysis.
+- Record approve/reject/defer decision.
+- Require a rationale for rejection and deferral.
+- Enforce authorised approver roles.
+- Create a new requirement version only on approval.
+- Record decision timestamps and reviewer identity.
+
+12.10 Remediation module
+Responsibilities:
+- Create actions from approved impact results.
+- Assign owners and due dates.
+- Track action status.
+- Record dispositions.
+- Track implementation evidence and test outcomes.
+- Determine whether closure conditions are met.
+
+12.11 Dashboard and reporting module
+Responsibilities:
+- Aggregate counts and trends.
+- Show open changes and impact priority.
+- Show unresolved change debt.
+- Show traceability-health issues.
+- Export readable reports as CSV/HTML/PDF if time allows. CSV export is the simplest reliable first deliverable.
+
+12.12 Audit and notification module
+Responsibilities:
+- Record important events.
+- Display in-app notifications.
+- Track notification read status.
+- Avoid sending external email in the MVP.
+
+===============================================================================
+13. TRACEABILITY GRAPH DESIGN
+===============================================================================
+
+The graph is the core of ReqRipple.
+
+Node categories:
+- Requirement nodes
+- Acceptance-criterion nodes
+- Design nodes
+- Module/service nodes
+- API nodes
+- Database/schema nodes
+- UI nodes
+- Test nodes
+- Documentation nodes
+- Deployment/configuration nodes
+- Optional project-task nodes
+
+Each node refers to a requirement or an artifact stored in the relational database.
+
+Edge fields:
+- id
+- project_id
+- source_node_type
+- source_node_id
+- target_node_type
+- target_node_id
+- relation_type
+- propagation_enabled (boolean)
+- relationship_strength (0.0 to 1.0)
+- confirmation_status (CONFIRMED / SUGGESTED / NEEDS_REVIEW)
+- notes
+- created_by
+- created_at
+- updated_at
+- is_active
+
+Suggested relationship types:
+- IMPLEMENTED_BY
+- SPECIFIED_BY
+- REALISED_AS
+- DEPENDS_ON
+- EXPOSES
+- CONSUMED_BY
+- USES
+- VERIFIED_BY
+- DOCUMENTED_BY
+- DEPLOYED_IN
+- CONSTRAINED_BY
+- DERIVED_FROM
+
+Every edge must have a clear direction meaning: "if the source changes, the target may need review." The UI should explain this convention when users create links.
+
+Example graph:
+REQ-003 Event Registration
+  -> MOD-002 Registration Service       [IMPLEMENTED_BY]
+  -> AC-003-01 OTP Verification Rule    [SPECIFIED_BY]
+  -> TEST-012 Registration Test         [VERIFIED_BY]
+
+MOD-002 Registration Service
+  -> API-004 Register Event API         [EXPOSES]
+  -> DB-006 Registration Record         [USES]
+
+API-004 Register Event API
+  -> UI-007 Event Registration Screen   [CONSUMED_BY]
+  -> TEST-018 API Integration Test      [VERIFIED_BY]
+
+DB-006 Registration Record
+  -> API-004 Register Event API         [USED_BY]
+
+The above is sample data. The actual graph must be created and editable by users.
+
+Graph UI requirements:
+- Pan and zoom.
+- Display nodes with distinct type icons/colours.
+- Show relationship labels.
+- Click a node to open its detail panel.
+- Click an edge to inspect relation type and notes.
+- Filter by artifact type, owner, status or priority.
+- Highlight the affected path for a selected change request.
+- Provide a reset view and fit-to-screen action.
+- Avoid rendering every node at once in large projects; support focused subgraph views around a selected requirement.
+
+===============================================================================
+14. REQUIREMENT CHANGE DIFF ENGINE
+===============================================================================
+
+Input:
+- Current approved requirement version.
+- Proposed requirement fields from a change request.
+
+Output:
+A list of changes, each with:
+- field_name
+- old_value
+- new_value
+- diff_type: ADDED / REMOVED / MODIFIED / UNCHANGED
+- category
+
+Example:
+Field: description
+Old: Students can register for events.
+New: Students can register for events after OTP verification.
+Diff type: MODIFIED
+Category: FUNCTIONAL_SCOPE_CHANGE
+
+Field: acceptance_criteria
+Old: User receives a registration confirmation.
+New: User must verify a valid OTP before registration is confirmed.
+Diff type: MODIFIED
+Category: ACCEPTANCE_CRITERIA_CHANGE
+
+Implementation note:
+Start with field-level comparison and normalised text comparison. Do not overcomplicate with embeddings or semantic models. Optional AI assistance can be added later as a separate suggestion layer, and a human must confirm its output.
+
+===============================================================================
+15. IMPACT ANALYSIS ENGINE — CORE ALGORITHM
+===============================================================================
+
+15.1 Purpose
+Given a changed requirement node, find downstream engineering artifacts that may need review and explain why they are included.
+
+15.2 Inputs
+- Project ID.
+- Change request ID.
+- Changed requirement node ID.
+- Proposed requirement diff.
+- Active traceability edges for that project.
+- Artifact metadata (criticality, owner, status and verification coverage).
+
+15.3 Outputs
+For each impacted artifact:
+- Artifact ID and title.
+- Artifact type.
+- Shortest dependency distance from the changed requirement.
+- One or more explanation paths.
+- Strongest selected path relationship strength.
+- Criticality factor.
+- Verification-gap factor.
+- Final impact-priority score.
+- Priority band.
+- Analysis warnings, if any.
+
+15.4 Traversal rules
+1. Build an adjacency list using active edges where propagation_enabled = true.
+2. Start at the changed requirement node.
+3. Use breadth-first search (BFS) to explore downstream nodes.
+4. Track visited nodes and shortest distance so cycles cannot cause infinite traversal.
+5. Keep predecessor information so explanation paths can be reconstructed.
+6. If multiple shortest paths exist, retain up to three representative paths for explanation.
+7. Do not follow inactive or explicitly non-propagating edges.
+8. Do not cross project boundaries.
+9. Return a warning if the changed requirement has no outgoing links.
+10. Mark suggested/unconfirmed links as weaker evidence and display that distinction in the report.
+
+15.5 Pseudocode
+
+function analyseImpact(startNode, graph):
+    queue = [startNode]
+    distance[startNode] = 0
+    predecessor[startNode] = []
+    visited = {startNode}
+
+    while queue is not empty:
+        current = queue.pop_front()
+        for edge in graph.outgoing(current):
+            if edge is inactive or propagation is disabled:
+                continue
+            nextNode = edge.target
+            candidateDistance = distance[current] + 1
+
+            if nextNode is not visited:
+                visited.add(nextNode)
+                distance[nextNode] = candidateDistance
+                predecessor[nextNode] = [edge]
+                queue.push_back(nextNode)
+            else if candidateDistance == distance[nextNode]:
+                add edge as an alternative shortest-path predecessor
+
+    for every reached node except startNode:
+        reconstruct up to three shortest explanation paths
+        calculate path strength and score components
+        create impact result
+
+    return impact results and graph warnings
+
+This pseudocode is a design guide. The implementation must handle typed node identifiers so that a requirement ID cannot be confused with an artifact ID.
+
+15.6 Relationship strength
+Store a relationship_strength between 0.0 and 1.0 on every edge. Use reasonable defaults by relation type, but allow authorised users to adjust them.
+
+Example defaults (initial proposal, configurable):
+- IMPLEMENTED_BY: 1.00
+- REALISED_AS: 0.95
+- VERIFIED_BY: 0.95
+- DEPENDS_ON: 0.90
+- EXPOSES: 0.85
+- CONSUMED_BY: 0.85
+- USES: 0.80
+- SPECIFIED_BY: 0.90
+- CONSTRAINED_BY: 0.90
+- DOCUMENTED_BY: 0.60
+- DERIVED_FROM: 0.90
+- DEPLOYED_IN: 0.70
+
+These values are heuristic defaults, not empirical probabilities.
+
+For a path with edges e1 ... en:
+path_strength = product(edge.relationship_strength for every edge in path)
+
+If multiple shortest paths reach a node, use the strongest shortest-path strength for scoring and display the alternative paths separately.
+
+15.7 Impact-priority scoring
+Important: The score is a transparent REVIEW PRIORITY heuristic. It is not the probability that an artifact will fail, not a prediction of financial loss and not a guarantee of impact.
+
+Define all factors between 0 and 1:
+D = selected path strength.
+P = proximity factor = 1 / shortest_path_distance.
+C = artifact criticality / 5, where criticality is an integer from 1 to 5.
+V = verification-gap factor:
+    1.00 = no linked verification/test artifact found
+    0.75 = linked test exists but is failing
+    0.50 = test exists but is stale/not rerun after relevant changes
+    0.10 = linked test has a current passing result
+
+Initial score formula:
+Impact Priority Score = round(100 * (0.30*D + 0.20*P + 0.25*C + 0.25*V))
+
+Priority bands:
+75–100 = CRITICAL
+55–74  = HIGH
+35–54  = MEDIUM
+0–34   = LOW
+
+Project settings may allow a project owner to tune weights, but the weights must total 1.0 and changes must be recorded in audit history. Keep a default configuration for repeatable demonstrations.
+
+Example:
+A database artifact has path strength 0.90, distance 2, criticality 5/5, and no linked current test.
+D = 0.90
+P = 0.50
+C = 1.00
+V = 1.00
+Score = round(100 * (0.30*0.90 + 0.20*0.50 + 0.25*1.00 + 0.25*1.00))
+Score = round(86) = 86, CRITICAL
+
+The report should show the component values and formula so that the result is understandable. Avoid presenting the score as scientific certainty.
+
+15.8 Analysis warnings
+- Requirement has no outgoing traceability links.
+- One or more related edges are unconfirmed.
+- Important artifact has no owner.
+- Critical artifact has no linked test.
+- Artifact has no recent review date.
+- Graph contains cycles (traversal safely handled them).
+- Some artifacts are archived or have inactive relationships.
+- Analysis uses a baseline or graph snapshot that has changed since the previous run.
+
+15.9 Reproducibility
+Every saved analysis must record:
+- analysis ID and timestamp
+- change request ID
+- source requirement version ID
+- proposed change snapshot or diff hash
+- traceability graph snapshot/version marker
+- scoring weights and algorithm version
+- generated result set
+This allows a previous report to remain understandable after the project graph changes.
+
+===============================================================================
+16. CHANGE SIMULATION / WHAT-IF MODE
+===============================================================================
+
+Purpose:
+Let a user preview the possible consequences of a proposed change before approval.
+
+Rules:
+- Simulation must not update the approved requirement.
+- Simulation must not create a final approved version.
+- Simulation must not create permanent remediation actions.
+- The user may rerun the simulation after changing the proposal or traceability links.
+- Save simulation history if practical; clearly label it as PREVIEW.
+
+Simulation screen sections:
+1. Proposed change summary.
+2. Field-level before/after comparison.
+3. Total impacted artifacts.
+4. Counts by priority band.
+5. Impacted artifact table.
+6. Interactive highlighted dependency graph.
+7. Estimated remediation effort based on artifact estimates.
+8. Missing test coverage and traceability warnings.
+9. Suggested review checklist.
+
+Effort estimation:
+Use the sum of estimated effort hours for impacted artifacts as a rough planning estimate. Do not call it a precise schedule prediction. The project can show a range if estimates are uncertain.
+
+===============================================================================
+17. CHANGE DEBT AND TRACEABILITY HEALTH
+===============================================================================
+
+17.1 Change debt
+Change debt is unresolved work associated with approved changes.
+
+Track:
+- Impact results not yet reviewed.
+- Required artifact updates not completed.
+- Required retests not executed.
+- Failed or blocked tests.
+- Overdue remediation actions.
+- Accepted risks that require follow-up.
+
+Dashboard cards:
+- Open approved changes.
+- Unreviewed high/critical impacts.
+- Overdue remediation actions.
+- Pending retests.
+- Failed tests after changes.
+- Accepted risks.
+
+Optional weighted change-debt indicator:
+For each unresolved impact, use criticality weight (1–5) multiplied by an age factor. Sum the values and label the result as an internal project indicator, not a standard industry metric. A simpler count-based dashboard is acceptable for MVP.
+
+17.2 Traceability health
+Indicators:
+- Requirements with at least one implementation relationship.
+- Requirements with at least one verification relationship.
+- Artifacts with no incoming or outgoing relationships.
+- Critical artifacts without linked tests.
+- Unconfirmed relationships.
+- Archived artifacts still connected through active edges.
+
+Display numerator and denominator where possible. Example: "18 of 22 requirements have a verification link" is more transparent than an unexplained score of 82%.
+
+17.3 Requirement volatility
+For each requirement, calculate the number of approved changes within a selected period. Show a simple trend and label repeatedly changed requirements as "high volatility" based on a configurable threshold. Do not claim that a high count automatically means poor quality; it is a signal for review.
+
+===============================================================================
+18. CHANGE REQUEST STATE MACHINE
+===============================================================================
+
+Suggested statuses:
+DRAFT
+SUBMITTED
+ANALYSIS_READY
+IN_REVIEW
+APPROVED
+REJECTED
+DEFERRED
+IMPLEMENTING
+VERIFICATION_PENDING
+CLOSED
+CANCELLED
+
+Allowed flow:
+DRAFT -> SUBMITTED
+SUBMITTED -> ANALYSIS_READY
+ANALYSIS_READY -> IN_REVIEW
+IN_REVIEW -> APPROVED / REJECTED / DEFERRED
+DEFERRED -> SUBMITTED or CANCELLED
+APPROVED -> IMPLEMENTING
+IMPLEMENTING -> VERIFICATION_PENDING
+VERIFICATION_PENDING -> IMPLEMENTING (if tests fail or work remains)
+VERIFICATION_PENDING -> CLOSED (when closure rules pass)
+DRAFT -> CANCELLED
+SUBMITTED -> CANCELLED (with permission)
+
+Enforce transitions in the backend. The frontend must not be the source of workflow truth.
+
+Approval conditions:
+- An impact analysis exists for the current proposal and current graph snapshot.
+- The approver has permission.
+- The decision has a timestamp and actor.
+- Rejection/defer decisions include rationale.
+- Approval creates the next immutable requirement version.
+- Approval records the analysis snapshot used for the decision.
+
+Closure conditions (initial policy):
+- All impacted artifacts have a recorded disposition.
+- All UPDATE_REQUIRED actions are completed or explicitly waived by an authorised reviewer.
+- All mandatory RETEST_REQUIRED actions have a passing test result or a documented risk acceptance.
+- No critical/high item remains silently unreviewed.
+- Any residual risk has a reason and responsible approver.
+
+===============================================================================
+19. DATA MODEL / DATABASE DESIGN
+===============================================================================
+
+Use relational tables. UUIDs are recommended for internal primary keys. Human-readable identifiers such as REQ-001 and API-004 are separate display IDs scoped to a project.
+
+19.1 users
+- id (PK)
+- name
+- email (unique)
+- password_hash
+- is_active
+- created_at
+- updated_at
+
+19.2 projects
+- id (PK)
+- name
+- description
+- domain
+- owner_user_id (FK users)
+- status
+- settings_json (weights and project options)
+- created_at
+- updated_at
+
+19.3 project_members
+- id (PK)
+- project_id (FK projects)
+- user_id (FK users)
+- role
+- joined_at
+- unique(project_id, user_id)
+
+19.4 requirements
+- id (PK)
+- project_id (FK projects)
+- graph_node_id (unique FK graph_nodes)
+- display_id (e.g. REQ-001)
+- requirement_type
+- current_version_id (nullable FK requirement_versions)
+- priority
+- criticality (1–5)
+- owner_user_id (nullable FK users)
+- lifecycle_status
+- created_at
+- updated_at
+- unique(project_id, display_id)
+
+19.5 requirement_versions
+- id (PK)
+- requirement_id (FK requirements)
+- version_number
+- title
+- description
+- rationale
+- acceptance_criteria_json or child table
+- status (DRAFT / APPROVED / RETIRED)
+- created_by (FK users)
+- approved_by (nullable FK users)
+- created_at
+- approved_at
+- content_hash (optional)
+- unique(requirement_id, version_number)
+
+Approved versions are immutable. Draft edits may be updated before approval. Once approved, create a new version instead of overwriting.
+
+19.6 artifacts
+- id (PK)
+- project_id (FK projects)
+- graph_node_id (unique FK graph_nodes)
+- display_id
+- artifact_type
+- title
+- description
+- criticality (1–5)
+- owner_user_id (nullable FK users)
+- status
+- estimated_effort_hours (nullable decimal)
+- external_reference (nullable)
+- last_reviewed_at (nullable)
+- created_at
+- updated_at
+- archived_at (nullable)
+- unique(project_id, display_id)
+
+19.7 graph_nodes
+- id (PK)
+- project_id (FK projects)
+- node_type (REQUIREMENT / ARTIFACT)
+- display_id (e.g. REQ-003 or API-004; unique within project)
+- created_at
+- unique(project_id, display_id)
+
+Each requirement and artifact has exactly one graph_nodes row, referenced through its unique graph_node_id. The graph_nodes table is the canonical identity layer for graph traversal. Requirement and artifact details remain in their own domain tables. Application services validate that node_type matches the record type. Records should normally be archived, not hard-deleted, so historical graph references remain valid.
+
+19.8 traceability_edges
+- id (PK)
+- project_id (FK projects)
+- source_node_id (FK graph_nodes)
+- target_node_id (FK graph_nodes)
+- relation_type
+- propagation_enabled
+- relationship_strength
+- confirmation_status
+- notes
+- created_by (FK users)
+- created_at
+- updated_at
+- is_active
+
+This design gives every graph edge real foreign keys to graph_nodes and avoids a fragile polymorphic source_node_type/source_node_id pair. Add indexes on project_id, source_node_id, target_node_id and is_active. Validate that both nodes belong to the same project and that source_node_id is not equal to target_node_id unless a future use case explicitly permits self-links.
+
+19.9 change_requests
+- id (PK)
+- project_id (FK projects)
+- requirement_id (FK requirements)
+- requester_user_id (FK users)
+- title
+- reason
+- business_justification
+- urgency
+- proposed_fields_json
+- status
+- submitted_at
+- decided_at (nullable)
+- decided_by (nullable FK users)
+- decision_rationale (nullable)
+- created_at
+- updated_at
+
+19.10 change_request_diffs
+- id (PK)
+- change_request_id (FK change_requests)
+- field_name
+- old_value
+- new_value
+- diff_type
+- change_category
+
+19.11 impact_analyses
+- id (PK)
+- change_request_id (FK change_requests)
+- source_requirement_version_id (FK requirement_versions)
+- graph_snapshot_hash or graph_revision
+- algorithm_version
+- scoring_weights_json
+- summary_json
+- is_preview
+- created_by (FK users)
+- created_at
+
+19.12 impact_results
+- id (PK)
+- impact_analysis_id (FK impact_analyses)
+- artifact_id (FK artifacts)
+- shortest_distance
+- path_strength
+- criticality_factor
+- proximity_factor
+- verification_gap_factor
+- impact_score
+- priority_band
+- explanation_paths_json
+- warning_flags_json
+- disposition
+- reviewed_by (nullable FK users)
+- reviewed_at (nullable)
+- review_rationale (nullable)
+- unique(impact_analysis_id, artifact_id)
+
+19.13 remediation_actions
+- id (PK)
+- impact_result_id (FK impact_results)
+- title
+- action_type (UPDATE / RETEST / REVIEW / DOCUMENT)
+- description
+- assigned_to (nullable FK users)
+- due_date (nullable)
+- status (OPEN / IN_PROGRESS / BLOCKED / DONE / WAIVED)
+- completion_notes
+- evidence_reference (nullable)
+- created_at
+- completed_at (nullable)
+
+19.14 test_executions
+- id (PK)
+- artifact_id (FK artifacts; artifact type must be TEST_CASE)
+- change_request_id (FK change_requests)
+- executed_by (FK users)
+- result (NOT_RUN / PASSED / FAILED / BLOCKED)
+- notes
+- evidence_reference (nullable)
+- executed_at
+
+19.15 audit_events
+- id (PK)
+- project_id (FK projects)
+- actor_user_id (nullable FK users)
+- event_type
+- entity_type
+- entity_id
+- summary
+- old_value_json (nullable)
+- new_value_json (nullable)
+- created_at
+
+19.16 notifications
+- id (PK)
+- user_id (FK users)
+- project_id (FK projects)
+- title
+- message
+- related_entity_type
+- related_entity_id
+- is_read
+- created_at
+
+Optional later tables:
+- project_baselines
+- project_baseline_items
+- change_comments
+- attachments
+- requirement_acceptance_criteria
+
+Use database migrations from the beginning. Do not manually edit a database schema after data has been created without a migration.
+
+===============================================================================
+20. API DESIGN
+===============================================================================
+
+Use REST endpoints under /api/v1. All project-specific endpoints must check membership and role.
+
+AUTH
+POST   /api/v1/auth/register
+POST   /api/v1/auth/login
+POST   /api/v1/auth/logout
+GET    /api/v1/auth/me
+
+PROJECTS
+GET    /api/v1/projects
+POST   /api/v1/projects
+GET    /api/v1/projects/{project_id}
+PATCH  /api/v1/projects/{project_id}
+GET    /api/v1/projects/{project_id}/members
+POST   /api/v1/projects/{project_id}/members
+PATCH  /api/v1/projects/{project_id}/members/{member_id}
+
+REQUIREMENTS
+GET    /api/v1/projects/{project_id}/requirements
+POST   /api/v1/projects/{project_id}/requirements
+GET    /api/v1/requirements/{requirement_id}
+PATCH  /api/v1/requirements/{requirement_id}
+GET    /api/v1/requirements/{requirement_id}/versions
+GET    /api/v1/requirements/{requirement_id}/versions/{version_id}
+
+ARTIFACTS
+GET    /api/v1/projects/{project_id}/artifacts
+POST   /api/v1/projects/{project_id}/artifacts
+GET    /api/v1/artifacts/{artifact_id}
+PATCH  /api/v1/artifacts/{artifact_id}
+
+TRACEABILITY
+GET    /api/v1/projects/{project_id}/graph
+POST   /api/v1/projects/{project_id}/edges
+PATCH  /api/v1/edges/{edge_id}
+DELETE /api/v1/edges/{edge_id}  (prefer soft deactivation)
+GET    /api/v1/projects/{project_id}/traceability-health
+
+CHANGE REQUESTS
+GET    /api/v1/projects/{project_id}/change-requests
+POST   /api/v1/projects/{project_id}/change-requests
+GET    /api/v1/change-requests/{change_request_id}
+PATCH  /api/v1/change-requests/{change_request_id}
+GET    /api/v1/change-requests/{change_request_id}/diff
+POST   /api/v1/change-requests/{change_request_id}/submit
+
+IMPACT ANALYSIS
+POST   /api/v1/change-requests/{change_request_id}/analyse
+POST   /api/v1/change-requests/{change_request_id}/simulate
+GET    /api/v1/impact-analyses/{analysis_id}
+GET    /api/v1/impact-analyses/{analysis_id}/results
+
+REVIEW
+POST   /api/v1/change-requests/{change_request_id}/approve
+POST   /api/v1/change-requests/{change_request_id}/reject
+POST   /api/v1/change-requests/{change_request_id}/defer
+POST   /api/v1/impact-results/{impact_result_id}/disposition
+
+REMEDIATION / TESTING
+GET    /api/v1/change-requests/{change_request_id}/actions
+POST   /api/v1/impact-results/{impact_result_id}/actions
+PATCH  /api/v1/remediation-actions/{action_id}
+POST   /api/v1/artifacts/{artifact_id}/test-executions
+GET    /api/v1/change-requests/{change_request_id}/closure-check
+
+DASHBOARD / REPORTS / AUDIT
+GET    /api/v1/projects/{project_id}/dashboard
+GET    /api/v1/projects/{project_id}/change-debt
+GET    /api/v1/projects/{project_id}/volatility
+GET    /api/v1/projects/{project_id}/audit-events
+GET    /api/v1/impact-analyses/{analysis_id}/export.csv
+
+API rules:
+- Use Pydantic request and response schemas.
+- Return consistent error responses.
+- Validate project membership and role on every relevant route.
+- Use pagination for list endpoints.
+- Use transactions for approval and version creation.
+- Never trust project_id or user_id supplied by the frontend without checking authorisation.
+- Do not expose password hashes or internal secrets in API responses.
+
+===============================================================================
+21. FRONTEND INFORMATION ARCHITECTURE
+===============================================================================
+
+Global layout:
+- Left sidebar: project switcher and navigation.
+- Top bar: current project, global search, notifications, user profile.
+- Main workspace: page content.
+- Detail drawer: contextual requirement/artifact/impact information.
+
+Recommended pages:
+
+21.1 Sign in / Register
+Simple, polished authentication screens.
+
+21.2 Project Home / Dashboard
+Show:
+- Total requirements.
+- Total artifacts.
+- Open change requests.
+- Critical/high impacts awaiting review.
+- Overdue remediation actions.
+- Test gaps.
+- Traceability coverage.
+- Recent project activity.
+
+21.3 Requirements Repository
+Table and detail view with:
+- Requirement ID and title.
+- Type and priority.
+- Criticality.
+- Owner.
+- Current version.
+- Status.
+- Linked artifact count.
+- Change history.
+
+21.4 Requirement Detail
+Tabs:
+- Overview.
+- Acceptance criteria.
+- Traceability.
+- Versions.
+- Change history.
+
+21.5 Artifact Registry
+Filter by type, owner, criticality and status. Allow creation/editing of artifacts.
+
+21.6 Traceability Explorer
+Interactive React Flow graph. Provide a focused graph around the selected requirement and filters for node type and relationship type.
+
+21.7 Change Request Desk
+Show change requests in a table or board with status, requester, urgency, created date and requirement ID.
+
+21.8 Change Request Detail
+Show proposed change, before/after field diff, discussion, status history and analysis actions.
+
+21.9 Impact Analysis Workspace
+The most important screen. Include:
+- Summary of impact counts.
+- Critical/high/medium/low priority breakdown.
+- Impacted artifact table.
+- Explanation path panel.
+- Highlighted dependency graph.
+- Score breakdown.
+- Test coverage warnings.
+- Owner and effort information.
+
+21.10 Review and Approval
+Approver sees the original requirement, proposed content, diff, impact report, risks and decision controls. Require rationale for reject/defer.
+
+21.11 Remediation Tracker
+Tasks grouped by change request, assignee, status and due date. Include update/retest dispositions.
+
+21.12 Change Debt / Traceability Health
+Show unresolved work, missing links, test coverage gaps and volatility signals.
+
+21.13 Reports and Audit
+Filter history and export impact reports.
+
+21.14 Project Settings
+Members, roles, scoring weights, priority thresholds and project profile.
+
+UI principles:
+- Aim for a professional engineering tool, not a generic student admin template.
+- Use a restrained visual system, clear hierarchy and readable typography.
+- Use different visual treatments for requirements, code artifacts, tests and documentation.
+- Use colour to encode status or priority, but always include text labels.
+- Do not use decorative charts that do not represent real database values.
+- Every table row and major card must link to a useful detail view.
+- Provide loading, empty, error and success states.
+- Confirm destructive or irreversible actions.
+- Support responsive layout, but optimise the graph workspace for laptop/desktop.
+
+===============================================================================
+22. RECOMMENDED REPOSITORY STRUCTURE
+===============================================================================
+
+reqripple/
+  README.md
+  .env.example
+  .gitignore
+  docker-compose.yml                 (optional later)
+  docs/
+    PROJECT_OVERVIEW.md
+    ARCHITECTURE.md
+    SRS.md
+    API_CONTRACT.md
+    DATA_MODEL.md
+    TEST_PLAN.md
+    DEMO_SCRIPT.md
+  frontend/
+    package.json
+    vite.config.ts
+    src/
+      app/
+        App.tsx
+        router.tsx
+        providers/
+      components/
+        layout/
+        ui/
+        graph/
+        tables/
+        forms/
+      features/
+        auth/
+        dashboard/
+        projects/
+        requirements/
+        artifacts/
+        traceability/
+        change-requests/
+        impact-analysis/
+        remediation/
+        reports/
+        settings/
+      lib/
+        api-client.ts
+        schemas.ts
+        utils.ts
+      styles/
+  backend/
+    pyproject.toml or requirements.txt
+    alembic.ini
+    alembic/
+    app/
+      main.py
+      core/
+        config.py
+        security.py
+        permissions.py
+        errors.py
+      db/
+        base.py
+        session.py
+      models/
+      schemas/
+      api/
+        v1/
+          auth.py
+          projects.py
+          requirements.py
+          artifacts.py
+          traceability.py
+          change_requests.py
+          impact.py
+          remediation.py
+          reports.py
+      services/
+        auth_service.py
+        project_service.py
+        requirement_service.py
+        artifact_service.py
+        traceability_service.py
+        diff_service.py
+        impact_analysis_service.py
+        scoring_service.py
+        review_service.py
+        remediation_service.py
+        dashboard_service.py
+        audit_service.py
+      domain/
+        graph/
+          graph_builder.py
+          traversal.py
+          path_explainer.py
+        impact/
+          change_classifier.py
+          scoring.py
+          coverage.py
+        workflows/
+          change_state_machine.py
+          closure_rules.py
+      tests/
+        unit/
+        integration/
+  scripts/
+    seed_demo_data.py
+    create_admin.py
+
+Keep the structure proportional to the project. Do not create empty folders or unnecessary abstractions. A module should exist because it has a real responsibility.
+
+===============================================================================
+23. DEMONSTRATION DATASET
+===============================================================================
+
+Use a realistic but manageable sample project so the application looks populated and can demonstrate meaningful propagation.
+
+Suggested sample project:
+Campus Event Management Platform
+
+Sample requirements:
+REQ-001: Students shall be able to create an account.
+REQ-002: Students shall be able to log in securely.
+REQ-003: Students shall be able to register for an event.
+REQ-004: Students shall receive registration confirmation.
+REQ-005: Organisers shall be able to view registered participants.
+REQ-006: Students shall be able to cancel a registration.
+REQ-007: Organisers shall be able to scan a QR code at event entry.
+REQ-008: The system shall prevent duplicate registrations.
+REQ-009: The system shall retain an auditable event attendance record.
+REQ-010: The system shall restrict participant data to authorised roles.
+
+Sample artifacts:
+MOD-001 Authentication Service
+MOD-002 Registration Service
+MOD-003 Event Management Service
+API-001 Login API
+API-002 Register Event API
+API-003 Cancel Registration API
+API-004 Participant List API
+API-005 QR Check-in API
+DB-001 Student Entity
+DB-002 Event Entity
+DB-003 Registration Entity
+DB-004 Attendance Entity
+UI-001 Login Screen
+UI-002 Event Listing Screen
+UI-003 Event Registration Screen
+UI-004 Registration Confirmation Screen
+UI-005 Organiser Dashboard
+UI-006 QR Check-in Screen
+TEST-001 Login Test Suite
+TEST-002 Registration API Test
+TEST-003 Duplicate Registration Test
+TEST-004 Cancellation Test
+TEST-005 QR Check-in Test
+TEST-006 Access Control Test
+DOC-001 Student Registration Guide
+DOC-002 Organiser Guide
+
+Create realistic edges between these nodes. Include some deliberately missing test relationships so the traceability-health dashboard has something meaningful to report.
+
+Suggested demo story:
+Initial requirement REQ-003 says a student can register for an event. The stakeholder proposes that event registration must require OTP verification.
+
+Potential impact path:
+REQ-003
+  -> MOD-002 Registration Service
+  -> API-002 Register Event API
+  -> UI-003 Event Registration Screen
+  -> UI-004 Registration Confirmation Screen
+  -> DB-003 Registration Entity
+  -> TEST-002 Registration API Test
+  -> TEST-003 Duplicate Registration Test
+  -> DOC-001 Student Registration Guide
+
+The exact paths should be defined in the seed graph and shown by the real impact engine. Do not hardcode this list as the analysis output.
+
+During the demo:
+1. Open the project dashboard.
+2. Show REQ-003 and its traceability graph.
+3. Submit the OTP requirement change.
+4. Show field-level diff.
+5. Run the impact analysis.
+6. Inspect a path explaining why the registration API and UI are affected.
+7. Show a critical artifact with no test relationship.
+8. Approve the change.
+9. Show automatically created remediation actions.
+10. Complete an action and record a passing test.
+11. Show the change-debt dashboard decrease.
+12. Open version history and audit history to prove traceability.
+
+===============================================================================
+24. TESTING AND QUALITY PLAN
+===============================================================================
+
+24.1 Unit tests — graph engine
+- Linear path A -> B -> C.
+- Branching graph A -> B and A -> C.
+- Multiple shortest paths to one node.
+- Graph containing a cycle.
+- Disconnected artifact.
+- Inactive edge ignored.
+- Propagation-disabled edge ignored.
+- Cross-project edge rejected.
+- No outgoing links warning.
+- Typed IDs with identical display strings do not collide.
+
+24.2 Unit tests — scoring
+- Score remains between 0 and 100.
+- High criticality increases priority when other factors are equal.
+- Missing test coverage increases priority when other factors are equal.
+- Greater path distance reduces proximity factor.
+- Relationship strength affects path score.
+- Priority bands use correct boundaries.
+- Configured weights must total 1.0.
+
+24.3 Unit tests — diff and workflow
+- Added/removed/modified fields are correctly classified.
+- An approved requirement version cannot be overwritten.
+- Invalid workflow transitions are rejected.
+- Rejection/defer requires rationale.
+- Approval creates a new version transactionally.
+- Simulation does not modify approved data.
+- Closure is blocked while mandatory actions remain incomplete.
+
+24.4 Integration tests
+- User creates a project and requirements.
+- User creates artifacts and edges.
+- User submits a change request.
+- Backend generates a diff and impact analysis.
+- Approver approves the change.
+- New version and remediation actions are created.
+- Tester records a result.
+- Change request closes only when rules pass.
+- User from another project cannot access the data.
+
+24.5 End-to-end browser tests
+Use Playwright to test the main user journey from login through change approval and closure. Test important empty/error/loading states too.
+
+24.6 Manual acceptance checks
+- The app runs from a clean clone using documented instructions.
+- Demo data can be seeded reliably.
+- No page relies on hardcoded fake metrics.
+- Impact analysis results are calculated from stored graph edges.
+- Score breakdown is visible and matches the backend calculation.
+- User permissions are enforced by the backend.
+- Historical reports remain readable after the graph changes.
+
+===============================================================================
+25. DEVELOPMENT PLAN / MILESTONES
+===============================================================================
+
+Build in phases. Do not ask a coding agent to generate the complete application in one giant prompt.
+
+PHASE 0 — Product definition and project setup
+Deliverables:
+- Confirm requirements and MVP boundary.
+- Create Git repository.
+- Create project structure.
+- Create README and environment example.
+- Agree on API and data model.
+- Confirm one sample domain and demo journey.
+Acceptance: application skeleton runs locally and both frontend/backend health checks work.
+
+PHASE 1 — Database and core backend
+Deliverables:
+- SQLAlchemy models.
+- Database migrations.
+- Authentication and project membership.
+- Requirement CRUD and version model.
+- Artifact CRUD.
+- Traceability edge CRUD.
+Acceptance: API tests pass and sample project can be created through API/seed script.
+
+PHASE 2 — Frontend foundation
+Deliverables:
+- Layout, routing, authentication screens.
+- Dashboard shell.
+- Requirements and artifact screens.
+- Forms, tables, search and detail drawers.
+Acceptance: users can manage requirements and artifacts through the UI.
+
+PHASE 3 — Traceability graph
+Deliverables:
+- Graph API.
+- React Flow visualisation.
+- Create/edit/deactivate relationships.
+- Filters and node detail panel.
+Acceptance: changes made to graph UI persist and reload correctly.
+
+PHASE 4 — Change request and diff
+Deliverables:
+- Change request submission.
+- Field-level diff engine.
+- Change request status flow.
+Acceptance: user can propose a new requirement version without altering the approved version.
+
+PHASE 5 — Impact analysis engine
+Deliverables:
+- BFS traversal.
+- Cycle-safe path reconstruction.
+- Test-coverage lookup.
+- Scoring and priority bands.
+- Analysis snapshots and warnings.
+Acceptance: unit tests prove correct results for linear, branching, cyclic and disconnected graphs.
+
+PHASE 6 — Impact workspace and simulation
+Deliverables:
+- Impact summary.
+- Impacted artifact table.
+- Explanation paths.
+- Highlighted graph.
+- What-if preview.
+Acceptance: reviewer can understand why every returned artifact is affected.
+
+PHASE 7 — Approval and remediation
+Deliverables:
+- Review screen.
+- Approve/reject/defer.
+- Immutable version creation.
+- Remediation action generation.
+- Disposition and test execution.
+- Closure rules.
+Acceptance: full change lifecycle works end-to-end.
+
+PHASE 8 — Dashboard, quality and finish
+Deliverables:
+- Change debt dashboard.
+- Traceability health.
+- Volatility view.
+- CSV export.
+- Audit log.
+- Seed data and demo script.
+- UI polish, accessibility, error handling and documentation.
+Acceptance: project can be demonstrated reliably from a clean local setup.
+
+A realistic student schedule can combine phases depending on team size and time available. Keep the phase order because later screens depend on reliable data and graph logic.
+
+===============================================================================
+26. SEPM DOCUMENTATION TO PREPARE
+===============================================================================
+
+Because this is an SEPM subject project, the software and the project-management artifacts are both important.
+
+Prepare:
+1. Project proposal / charter.
+2. Problem statement and objectives.
+3. Stakeholder analysis.
+4. Software Requirements Specification (SRS).
+5. Use-case diagram and use-case descriptions.
+6. System context diagram.
+7. Architecture diagram.
+8. Data model / ER diagram.
+9. Activity diagram for change request lifecycle.
+10. Sequence diagram for impact analysis.
+11. State diagram for change request workflow.
+12. Work Breakdown Structure (WBS).
+13. Project schedule / Gantt chart.
+14. Risk register.
+15. Test plan and test-case report.
+16. Change management plan.
+17. User manual.
+18. Final project report and presentation.
+
+Suggested risks:
+- Incomplete or inaccurate traceability data.
+- Scope creep due to too many artifact types.
+- Incorrect graph traversal or cycle handling.
+- Requirement versioning bugs.
+- Impact score misunderstood as a probability.
+- Frontend and backend API mismatch.
+- Seed data does not demonstrate meaningful paths.
+- Coding agents introduce unreviewed or inconsistent changes.
+
+Mitigations:
+- Display traceability warnings.
+- Freeze MVP scope early.
+- Unit-test graph algorithms independently.
+- Keep approved versions immutable.
+- Label score as review priority.
+- Maintain an API contract.
+- Write a repeatable demo script.
+- Review diffs, run tests and commit in small increments.
+
+===============================================================================
+27. HOW TO USE ANTIGRAVITY AND OPENCODE
+===============================================================================
+
+Antigravity and OpenCode are development tools, not runtime components of ReqRipple. The shipped application must run without either tool installed.
+
+Suggested workflow:
+
+ANTIGRAVITY
+Use for:
+- Understanding the repository and maintaining a visible implementation plan.
+- Planning a phase before editing.
+- Implementing a bounded feature.
+- Running the local application and browser workflows.
+- Inspecting screenshots and testing the UI.
+- Reviewing implementation artifacts and diffs.
+
+OPENCODE
+Use for:
+- Repository-wide code exploration.
+- Implementing focused backend or frontend tasks.
+- Refactoring with tests.
+- Finding bugs and reviewing diffs.
+- Running test commands and explaining failures.
+
+Do not let both agents edit the same files concurrently unless using isolated branches/worktrees. Agree on API contracts and database models first. Use Git commits after each stable milestone.
+
+MANDATORY AGENT RULES
+1. Read README and architecture documents before changing code.
+2. Do not replace the chosen stack without asking.
+3. Do not build the entire app in one pass.
+4. Do not create fake dashboard values or hardcoded impact results.
+5. Do not use a language-model API as a substitute for the graph algorithm.
+6. Do not change approved requirement versions in place.
+7. Do not weaken authentication or disable tests to make a demo pass.
+8. Do not add packages without explaining why they are needed.
+9. Add tests for every core algorithm and workflow change.
+10. Run relevant tests after each feature.
+11. Keep the app runnable after each phase.
+12. Report files changed, tests executed, failures and known limitations honestly.
+13. Ask before destructive database resets or deleting project data.
+14. Do not commit secrets, API keys or local database files.
+15. Do not mark a task complete unless the code and tests support that claim.
+
+===============================================================================
+28. INITIAL MASTER PROMPT FOR A CODING AGENT
+===============================================================================
+
+You are helping develop ReqRipple, a full-stack Software Requirement Change Impact Analyser for a university Software Engineering and Project Management project.
+
+Read the complete ReqRipple architecture document before proposing or editing code.
+
+PRODUCT PURPOSE:
+ReqRipple manages software requirements, versions and traceability relationships. When a stakeholder proposes a requirement change, it compares the proposed content with the current approved version, traverses a directed dependency graph, identifies affected engineering artifacts, explains impact paths, calculates a transparent review-priority score, and supports approval, remediation, retesting and closure.
+
+NON-NEGOTIABLE PRODUCT PRINCIPLES:
+- The core impact engine must be real deterministic code, not a mock and not an LLM response.
+- Impact results must be derived from database traceability links.
+- Every result must have a readable explanation path.
+- Show missing traceability and test coverage as limitations.
+- Use immutable approved requirement versions.
+- Simulation must not mutate approved data.
+- Enforce permissions on the backend.
+- Use actual database-backed dashboard metrics.
+- The project must run locally without paid APIs.
+
+TECHNOLOGY:
+Frontend: React, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, React Flow.
+Backend: Python, FastAPI, Pydantic, SQLAlchemy, Alembic.
+Database: SQLite for the MVP.
+Testing: Pytest and Playwright.
+
+ARCHITECTURAL STYLE:
+Use a modular monolith. Keep API routes, schemas, persistence models, application services and pure domain algorithms separated. Do not introduce microservices or a graph database for the first release.
+
+WORKING METHOD:
+1. Inspect the existing repository before making changes.
+2. Summarise current state and identify missing work.
+3. Propose a small implementation plan for the requested phase.
+4. Confirm data/API contracts before parallel frontend/backend work.
+5. Implement only the assigned phase or feature.
+6. Add or update automated tests.
+7. Run tests and report actual results.
+8. Review diffs for security, correctness, regressions and accidental scope expansion.
+9. Update documentation when contracts or behaviour change.
+10. Do not claim success for untested behaviour.
+
+FIRST TASK:
+Do not generate the full application yet. Inspect the repository (or create a minimal project skeleton if empty), then produce:
+- Current repository assessment.
+- Proposed folder structure.
+- Initial database entity relationship proposal.
+- API contract for Phase 1.
+- Phase 1 implementation checklist.
+- Risks or unresolved design decisions.
+Wait for the project owner to review the plan before implementing Phase 1.
+
+===============================================================================
+29. ACCEPTANCE CRITERIA FOR THE FINISHED PROJECT
+===============================================================================
+
+The project is considered ready for demonstration when all of the following are true:
+
+A. A user can create a project and manage its requirements.
+B. Approved requirement versions are retained as immutable history.
+C. A user can create engineering artifacts and directed traceability links.
+D. The graph can be visualised and edited.
+E. A stakeholder can submit a change request without overwriting approved content.
+F. The system can show a field-level requirement diff.
+G. The impact engine can calculate direct and indirect impacts from stored graph edges.
+H. The traversal safely handles cycles and disconnected nodes.
+I. Each impact result includes an explanation path.
+J. Each score includes visible component factors and a priority band.
+K. The user can simulate a change without committing it.
+L. An authorised reviewer can approve, reject or defer a change with a recorded decision.
+M. Approval creates a new approved requirement version and remediation tasks.
+N. Owners can record updates, dispositions and evidence.
+O. Testers can record test outcomes.
+P. The system can prevent closure while mandatory work is unresolved.
+Q. Dashboard and traceability metrics come from actual stored data.
+R. Audit history shows important project events.
+S. Core graph, scoring and workflow tests pass.
+T. A repeatable demo scenario works from a clean seeded database.
+
+===============================================================================
+30. DESIGN DECISIONS AND IMPORTANT WARNINGS
+===============================================================================
+
+30.1 Do not overpromise automatic discovery
+The first version analyses dependencies that the team has recorded. It cannot reliably infer all dependencies from a requirement's wording alone. Make traceability completeness a first-class dashboard concept.
+
+30.2 Do not make AI the core dependency
+An LLM may suggest possible links or summarise a change later. Such suggestions must be marked as unconfirmed until a user accepts them. Deterministic graph traversal remains the source of impact results.
+
+30.3 Do not create an overcomplicated score
+A transparent weighted formula is easier to implement, test and explain. Display the formula and its inputs. Call it a review-priority score.
+
+30.4 Do not build too many modules before proving the central workflow
+The essential vertical slice is:
+Create requirement -> create artifacts -> link graph -> submit change -> analyse impact -> review -> approve -> remediate -> retest -> close.
+Make that workflow reliable before adding optional features.
+
+30.5 Do not use microservices
+A modular monolith is appropriate for a student team and a single deployable application.
+
+30.6 Do not use fake data in the live interface
+Seed data is useful for demonstration, but every count, chart, graph and report must be generated from the database. Clearly identify demo projects as sample data.
+
+30.7 Preserve historical meaning
+When the graph changes, old impact reports should remain tied to the graph snapshot and requirement version used at the time of analysis.
+
+===============================================================================
+31. REFERENCE AND PROCESS ALIGNMENT
+===============================================================================
+
+Use ISO/IEC/IEEE 29148:2018 as a requirements-engineering process reference when preparing the academic SRS and requirements-management approach. It addresses requirements engineering processes and information items. The standard's terminology includes requirements management and requirements traceability. This project is inspired by those practices; building ReqRipple does not itself establish formal compliance or certification.
+
+Reference:
+ISO — ISO/IEC/IEEE 29148:2018, Systems and software engineering — Life cycle processes — Requirements engineering.
+https://www.iso.org/standard/72089.html
+
+IEEE Standards Association reference:
+https://standards.ieee.org/ieee/29148/6937/
+
+Development tool references (tooling only; they are not runtime dependencies):
+Google Antigravity documentation:
+https://antigravity.google/docs/home
+OpenCode:
+https://opencode.ai/
+
+===============================================================================
+32. FINAL PRODUCT DEFINITION
+===============================================================================
+
+ReqRipple is a web-based, traceability-driven software requirements change-management platform. It helps a software team understand the ripple effects of changing a requirement by comparing versions, traversing a directed dependency graph, identifying affected engineering artifacts, explaining impact paths, assigning transparent review priorities, supporting human approval and tracking remediation and verification until closure.
+
+Its strongest differentiators are:
+1. Explainable direct and indirect impact paths.
+2. A what-if change simulation that does not alter approved baselines.
+3. A change-debt dashboard for unresolved impact work.
+4. Traceability health and missing-test detection.
+5. Immutable requirement version history and auditable decisions.
+6. A deterministic, testable impact engine that works without paid AI APIs.
+
+Build the project around the end-to-end change lifecycle. A smaller, reliable product with real graph analysis and excellent usability will be stronger than a large application filled with incomplete features.
+
+END OF DOCUMENT
